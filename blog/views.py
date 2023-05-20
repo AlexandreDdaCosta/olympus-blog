@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.generic import TemplateView
 
 
-class Home(TemplateView):
+class BlogHome(TemplateView):
 
     def get(self, errors=False, *args, **kwargs):
         context = {}

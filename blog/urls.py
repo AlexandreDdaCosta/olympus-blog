@@ -1,7 +1,7 @@
 from django.urls import path
 
-from interface.apps.blog.views import TheZodiacalLight
+from django_blog_olympus.views import BlogHome
 
 urlpatterns = [
-    path(r'', TheZodiacalLight.as_view(), name='blog_thezodiacallight'),
+    path(r'', BlogHome.as_view(), name='blog_home'),
 ]
