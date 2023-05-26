@@ -4,7 +4,7 @@ from django.db import models
 from django.utils.translation import gettext as _
 
 
-class MediaDBOlympus(models.Model):
+class Media(models.Model):
     description = models.CharField(max_length=255,
                                    null=False)
     url_path = models.URLField(max_length=200,
@@ -15,13 +15,13 @@ class MediaDBOlympus(models.Model):
         return u'%s' % (self.url_path)
 
 
-class TopicDBOlympus(models.Model):
+class Topic(models.Model):
     name = models.CharField(db_index=True,
                             max_length=100,
                             null=False,
                             unique=True)
     description = models.CharField(max_length=255)
-    media = models.ForeignKey(MediaDBOlympus,
+    media = models.ForeignKey(Media,
                               null=True,
                               on_delete=models.CASCADE)
     order = models.IntegerField(MinValueValidator(1),
@@ -32,8 +32,8 @@ class TopicDBOlympus(models.Model):
         return u'%s' % (self.name)
 
 
-class TopicKeywordDBOlympus(models.Model):
-    topic = models.ForeignKey(TopicDBOlympus,
+class TopicKeyword(models.Model):
+    topic = models.ForeignKey(Topic,
                               null=False,
                               on_delete=models.CASCADE)
     keyword = models.CharField(db_index=True,
@@ -45,14 +45,14 @@ class TopicKeywordDBOlympus(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['topic', 'keyword'],
-                name='dbolympus_constraint_topic_keyword'),
+                name='topic_keyword'),
         ]
 
     def __unicode__(self):
         return u'Topic: %s, Keyword: %s' % (self.topic, self.keyword)
 
 
-class ArticleDBOlympus(models.Model):
+class Article(models.Model):
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE)
     body = models.TextField(null=False)
@@ -69,11 +69,11 @@ class ArticleDBOlympus(models.Model):
         return u'%s' % (self.title)
 
 
-class ArticleFeaturedDBOlympus(models.Model):
-    article = models.ForeignKey(ArticleDBOlympus,
+class ArticleFeatured(models.Model):
+    article = models.ForeignKey(Article,
                                 null=False,
                                 on_delete=models.CASCADE)
-    media = models.ForeignKey(MediaDBOlympus,
+    media = models.ForeignKey(Media,
                               null=False,
                               on_delete=models.CASCADE)
     order = models.IntegerField(MinValueValidator(1),
@@ -84,18 +84,18 @@ class ArticleFeaturedDBOlympus(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['article', 'media'],
-                name='dbolympus_constraint_article_featured'),
+                name='article_featured'),
         ]
 
     def __unicode__(self):
         return u'%s' % (self.article)
 
 
-class ArticleMediaDBOlympus(models.Model):
-    article = models.ForeignKey(ArticleDBOlympus,
+class ArticleMedia(models.Model):
+    article = models.ForeignKey(Article,
                                 null=False,
                                 on_delete=models.CASCADE)
-    media = models.ForeignKey(MediaDBOlympus,
+    media = models.ForeignKey(Media,
                               null=False,
                               on_delete=models.CASCADE)
     bold_caption = models.CharField(max_length=255,
@@ -106,15 +106,15 @@ class ArticleMediaDBOlympus(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['article', 'media'],
-                name='dbolympus_constraint_article_media'),
+                name='article_media'),
         ]
 
     def __unicode__(self):
         return u'Article: %s, Media: %s' % (self.article, self.media)
 
 
-class ArticleKeywordDBOlympus(models.Model):
-    article = models.ForeignKey(ArticleDBOlympus,
+class ArticleKeyword(models.Model):
+    article = models.ForeignKey(Article,
                                 null=False,
                                 on_delete=models.CASCADE)
     keyword = models.CharField(db_index=True,
@@ -127,18 +127,18 @@ class ArticleKeywordDBOlympus(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['article', 'keyword'],
-                name='dbolympus_constraint_article_keyword'),
+                name='article_keyword'),
         ]
 
     def __unicode__(self):
         return u'Article: %s, Keyword: %s' % (self.article, self.keyword)
 
 
-class ArticleTopicDBOlympus(models.Model):
-    article = models.ForeignKey(ArticleDBOlympus,
+class ArticleTopic(models.Model):
+    article = models.ForeignKey(Article,
                                 null=False,
                                 on_delete=models.CASCADE)
-    topic = models.ForeignKey(TopicDBOlympus,
+    topic = models.ForeignKey(Topic,
                               db_index=True,
                               null=False,
                               on_delete=models.CASCADE)
@@ -147,17 +147,17 @@ class ArticleTopicDBOlympus(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['article', 'topic'],
-                name='dbolympus_constraint_article_topic'),
+                name='article_topic'),
         ]
 
     def __unicode__(self):
         return u'Topic: %s, Article: %s' % (self.topic, self.article)
 
 
-class ArticleRevisionDBOlympus(models.Model):
+class ArticleRevision(models.Model):
     archive_date = models.DateTimeField(_('Archived'),
                                         auto_now_add=True)
-    article = models.ForeignKey(ArticleDBOlympus,
+    article = models.ForeignKey(Article,
                                 null=False,
                                 on_delete=models.CASCADE)
     body = models.TextField()
@@ -170,13 +170,13 @@ class ArticleRevisionDBOlympus(models.Model):
                                                   self.archive_date)
 
 
-class ThreadDBOlympus(models.Model):
+class Thread(models.Model):
     name = models.CharField(db_index=True,
                             max_length=100,
                             null=False,
                             unique=True)
     description = models.CharField(max_length=255)
-    media = models.ForeignKey(MediaDBOlympus,
+    media = models.ForeignKey(Media,
                               null=True,
                               on_delete=models.CASCADE)
     order = models.IntegerField(MinValueValidator(1),
@@ -187,11 +187,11 @@ class ThreadDBOlympus(models.Model):
         return '%s' % (self.name)
 
 
-class ThreadArticleDBOlympus(models.Model):
-    article = models.ForeignKey(ArticleDBOlympus,
+class ThreadArticle(models.Model):
+    article = models.ForeignKey(Article,
                                 null=False,
                                 on_delete=models.CASCADE)
-    thread = models.ForeignKey(ThreadDBOlympus,
+    thread = models.ForeignKey(Thread,
                                null=False,
                                on_delete=models.CASCADE)
     order = models.IntegerField(MinValueValidator(1),
@@ -202,15 +202,15 @@ class ThreadArticleDBOlympus(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['article', 'thread'],
-                name='dbolympus_constraint_thread_article'),
+                name='thread_article'),
         ]
 
     def __unicode__(self):
         return 'Thread: %s, Article: %s' % (self.thread, self.article)
 
 
-class CommentDBOlympus(models.Model):
-    article = models.ForeignKey(ArticleDBOlympus,
+class Comment(models.Model):
+    article = models.ForeignKey(Article,
                                 null=False,
                                 on_delete=models.CASCADE)
     author = models.ForeignKey(User,
@@ -224,17 +224,17 @@ class CommentDBOlympus(models.Model):
                                      auto_now_add=True)
 
 
-class CommentParentDBOlympus(models.Model):
-    comment = models.OneToOneField(CommentDBOlympus,
+class CommentParent(models.Model):
+    comment = models.OneToOneField(Comment,
                                    on_delete=models.CASCADE,
                                    related_name='comment_parent_comment')
-    parent = models.ForeignKey(CommentDBOlympus,
+    parent = models.ForeignKey(Comment,
                                on_delete=models.CASCADE,
                                related_name='comment_parent_parent')
 
 
-class CommentLikeDBOlympus(models.Model):
+class CommentLike(models.Model):
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE)
-    comment = models.OneToOneField(CommentDBOlympus,
+    comment = models.OneToOneField(Comment,
                                    on_delete=models.CASCADE)
